@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Gatherings - IGFSS</title>
+    <link rel="stylesheet" href="css/igfss-yellow-theme.css">
+</head>
+<body>
+
+<header class="app-header">
+    <div class="app-header__inner">
+        <div class="app-header__brand">
+            <h1>Browse community gatherings</h1>
+            <p>IGFSS Happy Families</p>
+        </div>
+        <nav class="app-header__session" id="sessionNav"></nav>
+    </div>
+</header>
+
+<main class="page-container">
+
+    <div class="card">
+        <h2>All scheduled gatherings</h2>
+        <p class="lead">
+            Below is every gathering currently on record, sorted by date.
+            Anyone can see this list (sign-in is not required).
+        </p>
+
+        <div class="button-row" style="margin-top: 0;">
+            <button type="button" class="btn btn-secondary" id="refreshButton">Refresh list</button>
+        </div>
+
+        <div id="statusMessage" class="status-message" role="status"></div>
+        <div id="gatheringList" class="gathering-list"></div>
+        <div class="button-row" style="margin-top: 20px;">
+
+    <button type="button" class="btn btn-secondary" onclick="history.back()">
+        Back
+    </button>
+
+</div>
+    </div>
+
+</main>
+
+<footer class="app-footer">
+    IGFSS - Intergenerational Family Support System
+</footer>
+
+<script src="js/igfss-client.js"></script>
+<script>
+    const fidn  = IgfssSession.currentFidn();
+    const email = IgfssSession.currentEmail();
+    const nav   = document.getElementById("sessionNav");
+    if (fidn !== null) {
+        const identity = email ? (email + " (FIDN " + fidn + ")") : ("FIDN " + fidn);
+        nav.innerHTML = '<span>Signed in as <strong>' + identity + '</strong></span>'
+                      + ' <a href="member-dashboard.html">Dashboard</a>'
+                      + ' <a href="#" id="signOutLink">Sign out</a>';
+        document.getElementById("signOutLink").addEventListener("click", function (e) {
+            e.preventDefault();
+            IgfssSession.signOut();
+            window.location.href = "welcome.html";
+        });
+    } else {
+        nav.innerHTML = '<a href="welcome.html">Back to welcome</a>'
+                      + ' <a href="membership-gate.html">Sign in</a>';
+    }
+
+    function formatCategory(c) {
+        switch (c) {
+            case "SOCIAL_GATHERING":   return "Social Gathering";
+            case "WORKSHOP":           return "Workshop";
+            case "COMMUNITY_ACTIVITY": return "Community Activity";
+            default:                   return c;
+        }
+    }
+
+    function categoryIconSvg(c) {
+        // Heroicons inline SVGs - one per category for at-a-glance scanning
+        switch (c) {
+            case "SOCIAL_GATHERING":
+                // chat-bubble-left-right
+                return '<svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">'
+                     + '<path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0 0 11.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" />'
+                     + '</svg>';
+            case "WORKSHOP":
+                // academic-cap
+                return '<svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">'
+                     + '<path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />'
+                     + '</svg>';
+            case "COMMUNITY_ACTIVITY":
+                // heart
+                return '<svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">'
+                     + '<path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />'
+                     + '</svg>';
+            default:
+                return '';
+        }
+    }
+
+    async function loadGatherings() {
+        try {
+            const reply = await IgfssClient.listGatherings();
+            IgfssUi.showStatus("statusMessage", reply.accepted, reply.replyMessage);
+            const list = document.getElementById("gatheringList");
+            list.innerHTML = "";
+            if (reply.accepted && Array.isArray(reply.replyData)) {
+                if (reply.replyData.length === 0) {
+                    const empty = document.createElement("p");
+                    empty.className = "empty-state";
+                    empty.textContent = "No gatherings have been scheduled yet. " +
+                        "Sign in and use \u201cCreate a gathering\u201d to add the first one.";
+                    list.appendChild(empty);
+                    return;
+                }
+                reply.replyData.forEach(function (g) {
+                    const tile = document.createElement("div");
+                    tile.className = "gathering-tile";
+                    const cost = (typeof g.estimatedCost === "number")
+                        ? g.estimatedCost.toFixed(2)
+                        : g.estimatedCost;
+
+                    // Build the tile via DOM API so user-supplied venue is escaped.
+                    const idDiv = document.createElement("div");
+                    idDiv.className = "gathering-id";
+                    // Category icon is hard-coded SVG (safe to inject as HTML)
+                    idDiv.innerHTML = categoryIconSvg(g.gatheringCategory);
+                    const refSpan = document.createElement("span");
+                    refSpan.textContent = "Reference #" + g.gatheringId;
+                    idDiv.appendChild(refSpan);
+
+                    const heading = document.createElement("h4");
+                    heading.textContent = formatCategory(g.gatheringCategory) + " \u00b7 " + g.venue;
+
+                    const meta = document.createElement("div");
+                    meta.className = "meta";
+                    const metaPairs = [
+                        ["Date",      g.gatheringDate],
+                        ["Time",      g.gatheringTime + " (" + g.durationMinutes + " minutes)"],
+                        ["Cost",      "$" + cost],
+                        ["Organiser", "FIDN " + g.organiserFidn]
+                    ];
+                    metaPairs.forEach(function (pair, idx) {
+                        const label = document.createElement("strong");
+                        label.textContent = pair[0];
+                        meta.appendChild(label);
+                        meta.appendChild(document.createTextNode(String(pair[1])));
+                        if (idx < metaPairs.length - 1) meta.appendChild(document.createElement("br"));
+                    });
+
+                    tile.appendChild(idDiv);
+                    tile.appendChild(heading);
+                    tile.appendChild(meta);
+                    list.appendChild(tile);
+                });
+            }
+        } catch (e) {
+            IgfssUi.showStatus("statusMessage", false, "Could not reach the IGFSS server. " + e.message);
+        }
+    }
+
+    document.getElementById("refreshButton").addEventListener("click", loadGatherings);
+    loadGatherings();
+</script>
+
+</body>
+</html>

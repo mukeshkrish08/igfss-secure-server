@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register as Young Household - IGFSS</title>
+    <link rel="stylesheet" href="css/igfss-yellow-theme.css">
+</head>
+<body>
+
+<header class="app-header">
+    <div class="app-header__inner">
+        <div class="app-header__brand">
+            <h1>Register as Young Household</h1>
+            <p>IGFSS Happy Families</p>
+        </div>
+        <nav class="app-header__session">
+            <a href="welcome.html">Back to welcome</a>
+        </nav>
+    </div>
+</header>
+
+<main class="page-container">
+
+    <div class="card">
+        <h2>Young Household registration</h2>
+        <p class="lead">
+            Young Households are families who would benefit from the experience and support of
+            Senior Mentor couples. Up to four children can be registered with each household.
+        </p>
+
+        <div class="rule-notice">
+            <strong>Children:</strong> You may register between <strong>0 and 4 children</strong>.
+            Use the dropdown below to choose how many. Your sign-in password must be exactly
+            <strong>10 characters</strong> long and contain both letters and numbers.
+        </div>
+
+        <div class="form-grid">
+
+            <h3 style="grid-column: 1 / -1;">Partner 1</h3>
+            <label>Full name
+                <input type="text" id="p1Name" placeholder="e.g. Linh Nguyen" autocomplete="off">
+            </label>
+            <label>Phone
+                <input type="tel" id="p1Phone" placeholder="e.g. 0421 555 666" autocomplete="off">
+            </label>
+            <label class="full-width">Email
+                <input type="email" id="p1Email" placeholder="e.g. linh.nguyen@example.com" autocomplete="off">
+            </label>
+
+            <h3 style="grid-column: 1 / -1;">Partner 2</h3>
+            <label>Full name
+                <input type="text" id="p2Name" placeholder="e.g. Minh Nguyen" autocomplete="off">
+            </label>
+            <label>Phone
+                <input type="tel" id="p2Phone" placeholder="e.g. 0422 666 777" autocomplete="off">
+            </label>
+            <label class="full-width">Email
+                <input type="email" id="p2Email" placeholder="e.g. minh.nguyen@example.com" autocomplete="off">
+            </label>
+
+            <h3 style="grid-column: 1 / -1;">Household</h3>
+            <label class="full-width">Home address
+                <input type="text" id="address" placeholder="e.g. 18 Springvale Road, Footscray VIC 3011" autocomplete="off">
+            </label>
+            <label class="full-width">Number of children
+                <select id="childCount">
+                    <option value="0">0 - no children registered</option>
+                    <option value="1">1 child</option>
+                    <option value="2">2 children</option>
+                    <option value="3">3 children</option>
+                    <option value="4">4 children (maximum)</option>
+                </select>
+            </label>
+
+            <div class="children-panel" id="childrenPanel" style="display: none;">
+                <h4>Children details</h4>
+                <div id="childRows"></div>
+            </div>
+
+            <h3 style="grid-column: 1 / -1;">Primary Email ID for Sign-in</h3>
+            <label>Login email (becomes your username)
+                <input type="email" id="loginEmail" placeholder="email used to sign in" autocomplete="off">
+            </label>
+            <label>Password (10 characters, letters and numbers)
+                <input type="password" id="passwordPlain" maxlength="10" placeholder="exactly 10 characters" autocomplete="new-password">
+            </label>
+
+            <div class="button-row">
+                <button type="button" class="btn" id="enrolButton">Submit registration</button>
+                <a href="welcome.html" class="btn btn-secondary">Cancel</a>
+            </div>
+        </div>
+
+        <div id="statusMessage" class="status-message" role="status"></div>
+    </div>
+
+</main>
+
+<footer class="app-footer">
+    IGFSS - Intergenerational Family Support System
+</footer>
+
+<script src="js/igfss-client.js"></script>
+<script>
+    const childCountSelect = document.getElementById("childCount");
+    const childrenPanel    = document.getElementById("childrenPanel");
+    const childRowsDiv     = document.getElementById("childRows");
+
+    function rebuildChildRows() {
+        const count = parseInt(childCountSelect.value, 10);
+        childRowsDiv.innerHTML = "";
+        if (count === 0) {
+            childrenPanel.style.display = "none";
+            return;
+        }
+        childrenPanel.style.display = "block";
+        for (let i = 1; i <= count; i++) {
+            const row = document.createElement("div");
+            row.className = "child-row";
+            row.innerHTML =
+                '<div class="child-num">Child ' + i + '</div>' +
+                '<label>Age<input type="number" id="childAge' + i + '" min="0" placeholder="years"></label>' +
+                '<label>Gender<select id="childGender' + i + '"><option value="">Choose...</option><option value="Male">Male</option><option value="Female">Female</option></select></label>';
+            childRowsDiv.appendChild(row);
+        }
+    }
+    childCountSelect.addEventListener("change", rebuildChildRows);
+
+    document.getElementById("enrolButton").addEventListener("click", async function () {
+
+        const credential = {
+            loginEmail:    IgfssUi.val("loginEmail"),
+            passwordPlain: document.getElementById("passwordPlain").value
+        };
+        const credViolation = IgfssValidator.describeEmailViolation(credential.loginEmail)
+                           || IgfssValidator.describePasswordViolation(credential.passwordPlain);
+        if (credViolation) {
+            IgfssUi.showStatus("statusMessage", false, credViolation);
+            return;
+        }
+
+        const childCount = parseInt(childCountSelect.value, 10);
+        const children = [];
+        for (let i = 1; i <= childCount; i++) {
+            const age    = IgfssUi.intVal("childAge" + i);
+            const gender = IgfssUi.val("childGender" + i);
+            if (Number.isNaN(age) || age < 0) {
+                IgfssUi.showStatus("statusMessage", false, "Child " + i + ": age must be a whole number 0 or greater.");
+                return;
+            }
+            if (gender !== "Male" && gender !== "Female") {
+                IgfssUi.showStatus("statusMessage", false, "Child " + i + ": please choose a gender.");
+                return;
+            }
+            children.push({ childAge: age, childGender: gender });
+        }
+
+        const household = {
+            partnerOneName:    IgfssUi.val("p1Name"),
+            partnerTwoName:    IgfssUi.val("p2Name"),
+            partnerOneContact: IgfssUi.val("p1Phone"),
+            partnerTwoContact: IgfssUi.val("p2Phone"),
+            partnerOneEmail:   IgfssUi.val("p1Email"),
+            partnerTwoEmail:   IgfssUi.val("p2Email"),
+            familyHomeAddress: IgfssUi.val("address"),
+            loginEmail:        credential.loginEmail,
+            householdChildren: children
+        };
+
+        try {
+            const reply = await IgfssClient.enrolYoungHousehold(household, credential);
+            IgfssUi.showStatus("statusMessage", reply.accepted, reply.replyMessage);
+            if (reply.accepted) {
+                document.querySelectorAll(".form-grid input").forEach(i => i.value = "");
+                childCountSelect.value = "0";
+                rebuildChildRows();
+            }
+        } catch (e) {
+            IgfssUi.showStatus("statusMessage", false, "Could not reach the IGFSS server. " + e.message);
+        }
+    });
+</script>
+
+</body>
+</html>

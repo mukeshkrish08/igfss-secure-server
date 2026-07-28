@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign in - IGFSS</title>
+    <link rel="stylesheet" href="css/igfss-yellow-theme.css">
+</head>
+<body>
+
+<header class="app-header">
+    <div class="app-header__inner">
+        <div class="app-header__brand">
+            <h1>Sign in</h1>
+            <p>IGFSS Happy Families</p>
+        </div>
+        <nav class="app-header__session">
+            <a href="welcome.html">Back to welcome</a>
+        </nav>
+    </div>
+</header>
+
+<main class="page-container">
+
+    <div class="card">
+        <div class="login-icon-wrap">
+            <!-- Heroicon: lock-closed -->
+            <svg class="icon icon-lg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+            </svg>
+        </div>
+        <h2 style="text-align: center;">Member sign-in</h2>
+        <p class="lead" style="text-align: center; margin-left: auto; margin-right: auto;">
+            Sign in with the email and 10-character password you provided when you registered.
+            Three failed attempts will lock your account for 15 minutes.
+        </p>
+
+        <div class="form-grid single-column" style="margin-left: auto; margin-right: auto;">
+
+            <label>Login email
+                <input type="email" id="loginEmail" placeholder="email used at registration" autocomplete="username">
+            </label>
+            <label>Password
+                <input type="password" id="passwordPlain" maxlength="10" placeholder="10 characters" autocomplete="current-password">
+            </label>
+
+            <div class="button-row">
+                <button type="button" class="btn" id="signInButton">Sign in</button>
+                <a href="welcome.html" class="btn btn-secondary">Back</a>
+            </div>
+        </div>
+
+        <div id="statusMessage" class="status-message" role="status"></div>
+    </div>
+
+</main>
+
+<footer class="app-footer">
+    IGFSS - Intergenerational Family Support System
+</footer>
+
+<script src="js/igfss-client.js"></script>
+<script>
+    document.getElementById("signInButton").addEventListener("click", async function () {
+        const email    = IgfssUi.val("loginEmail");
+        const password = document.getElementById("passwordPlain").value;
+
+        const emailViolation = IgfssValidator.describeEmailViolation(email);
+        if (emailViolation) {
+            IgfssUi.showStatus("statusMessage", false, emailViolation);
+            return;
+        }
+        if (!password) {
+            IgfssUi.showStatus("statusMessage", false, "Password cannot be blank.");
+            return;
+        }
+
+        try {
+            const reply = await IgfssClient.signIn(email, password);
+            IgfssUi.showStatus("statusMessage", reply.accepted, reply.replyMessage);
+
+            if (reply.accepted && reply.replyData) {
+                IgfssSession.recordSignIn(reply.replyData.authenticatedFidn, email);
+                setTimeout(() => { window.location.href = "member-dashboard.html"; }, 800);
+            }
+        } catch (e) {
+            IgfssUi.showStatus("statusMessage", false, "Could not reach the IGFSS server. " + e.message);
+        }
+    });
+
+    // Allow Enter key to submit
+    document.getElementById("passwordPlain").addEventListener("keydown", function (e) {
+        if (e.key === "Enter") document.getElementById("signInButton").click();
+    });
+</script>
+
+</body>
+</html>

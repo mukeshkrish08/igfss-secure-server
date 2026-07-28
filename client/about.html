@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About IGFSS</title>
+    <link rel="stylesheet" href="css/igfss-yellow-theme.css">
+    <style>
+        .about-card {
+            background-color: var(--color-paper);
+            border: 1px solid var(--color-line);
+            border-left: 3px solid var(--color-gold);
+            border-radius: var(--radius-lg);
+            padding: var(--space-5);
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            margin-top: var(--space-5);
+        }
+        .about-card .avatar {
+            margin: 0;
+        }
+        .about-card .member-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+        .about-card .member-name {
+            font-size: var(--type-base);
+            font-weight: 600;
+            color: var(--color-ink);
+            line-height: var(--line-tight);
+            letter-spacing: -0.005em;
+        }
+        .about-card .member-role {
+            font-size: var(--type-sm);
+            color: var(--color-muted);
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+<header class="app-header">
+    <div class="app-header__inner">
+        <div class="app-header__brand">
+            <h1>About IGFSS</h1>
+            <p>IGFSS Happy Families</p>
+        </div>
+        <nav class="app-header__session" id="sessionNav">
+            <a href="welcome.html">Back to welcome</a>
+        </nav>
+    </div>
+</header>
+
+<main class="page-container">
+
+    <div class="card">
+        <h2>About this project</h2>
+        <p class="lead">
+            The Intergenerational Family Support System (Happy Families Program) is a
+            full-stack web application connecting Senior Mentors with Young Households
+            through community gatherings. It was designed and built end-to-end - REST API,
+            database layer, authentication and session handling, TLS security, and the
+            browser-based client UI.
+        </p>
+
+        <div class="about-card">
+            <div class="avatar">MV</div>
+            <div class="member-info">
+                <div class="member-name">Mukesh Varman</div>
+                <div class="member-role">Full-Stack Developer - Architecture, REST API, Database, Security &amp; UI</div>
+            </div>
+        </div>
+
+        <div class="button-row" style="margin-top: 20px;">
+            <button type="button" class="btn btn-secondary" onclick="history.back()">
+                Back
+            </button>
+        </div>
+    </div>
+
+</main>
+
+<footer class="app-footer">
+    IGFSS - Intergenerational Family Support System
+</footer>
+
+<script src="js/igfss-client.js"></script>
+<script>
+    // If signed in, show "Sign out" instead of "Back to welcome"
+    const fidn  = IgfssSession.currentFidn();
+    const email = IgfssSession.currentEmail();
+    const nav   = document.getElementById("sessionNav");
+    if (fidn !== null) {
+        nav.innerHTML = '<span>Signed in as <strong>' + (email || ('FIDN ' + fidn)) + '</strong></span>'
+                      + ' <a href="member-dashboard.html">Dashboard</a>'
+                      + ' <a href="#" id="signOutLink">Sign out</a>';
+        document.getElementById("signOutLink").addEventListener("click", function (e) {
+            e.preventDefault();
+            IgfssSession.signOut();
+            window.location.href = "welcome.html";
+        });
+    }
+</script>
+
+</body>
+</html>

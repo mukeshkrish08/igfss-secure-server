@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Participant Directory - IGFSS</title>
+    <link rel="stylesheet" href="css/igfss-yellow-theme.css">
+</head>
+<body>
+
+<header class="app-header">
+    <div class="app-header__inner">
+        <div class="app-header__brand">
+            <h1>Participant directory</h1>
+            <p>IGFSS Happy Families</p>
+        </div>
+        <nav class="app-header__session">
+            <span>Signed in as <strong id="myIdentity">FIDN -</strong></span>
+            <a href="member-dashboard.html">Dashboard</a>
+            <a href="#" id="signOutLink">Sign out</a>
+        </nav>
+    </div>
+</header>
+
+<main class="page-container">
+
+    <div class="card">
+        <h2>All registered FIDNs</h2>
+        <p class="lead">
+            Click any FIDN tile below to view that participant's full contact details.
+        </p>
+
+        <div class="button-row" style="margin-top: 0;">
+            <button type="button" class="btn btn-secondary" id="refreshButton">Refresh list</button>
+          
+        </div>
+        
+
+        <div id="statusMessage" class="status-message" role="status"></div>
+        <div id="fidnGrid" class="fidn-grid"></div>
+    <div class="button-row" style="margin-top: 20px;">
+
+    <button type="button" class="btn btn-secondary" onclick="history.back()">
+        Back
+    </button>
+
+</div>
+        </div>
+    </div>
+
+    <div class="card" id="detailsCard" style="display: none;">
+        <h2 id="detailsHeading">Participant details</h2>
+        <table class="detail-table" id="detailsTable">
+            <tbody></tbody>
+        </table>
+
+        
+    </div>
+
+    
+</main>
+
+<footer class="app-footer">
+    IGFSS - Intergenerational Family Support System
+</footer>
+
+<script src="js/igfss-client.js"></script>
+<script>
+    if (IgfssSession.requireSignIn()) {
+        const fidn  = IgfssSession.currentFidn();
+        const email = IgfssSession.currentEmail();
+        document.getElementById("myIdentity").textContent =
+            email ? (email + " (FIDN " + fidn + ")") : ("FIDN " + fidn);
+    }
+    document.getElementById("signOutLink").addEventListener("click", function (e) {
+        e.preventDefault();
+        IgfssSession.signOut();
+        window.location.href = "welcome.html";
+    });
+
+    async function loadFidns() {
+        try {
+            const reply = await IgfssClient.listAllFidns();
+            IgfssUi.showStatus("statusMessage", reply.accepted, reply.replyMessage);
+            const grid = document.getElementById("fidnGrid");
+            grid.innerHTML = "";
+            if (reply.accepted && Array.isArray(reply.replyData)) {
+                if (reply.replyData.length === 0) {
+                    const empty = document.createElement("p");
+                    empty.className = "empty-state";
+                    empty.textContent = "No participants registered yet. " +
+                        "Register a Senior Mentor or Young Household to get started.";
+                    grid.appendChild(empty);
+                    return;
+                }
+                reply.replyData.forEach(function (fidn) {
+                    const tile = document.createElement("a");
+                    tile.className = "fidn-tile";
+                    tile.href = "#";
+                    tile.textContent = "FIDN " + fidn;
+                    tile.addEventListener("click", function (e) {
+                        e.preventDefault();
+                        loadParticipant(fidn);
+                    });
+                    grid.appendChild(tile);
+                });
+            }
+        } catch (e) {
+            IgfssUi.showStatus("statusMessage", false, "Could not reach the IGFSS server. " + e.message);
+        }
+    }
+
+    async function loadParticipant(fidn) {
+        try {
+            const reply = await IgfssClient.getParticipant(fidn);
+            const card  = document.getElementById("detailsCard");
+            const head  = document.getElementById("detailsHeading");
+            const tbody = document.querySelector("#detailsTable tbody");
+
+            tbody.innerHTML = "";
+            if (!reply.accepted) {
+                card.style.display = "block";
+                head.textContent = "Not found";
+                const tr = document.createElement("tr");
+                const labelCell = document.createElement("td");
+                const valueCell = document.createElement("td");
+                labelCell.textContent = "Error";
+                valueCell.textContent = String(reply.replyMessage);
+                tr.appendChild(labelCell);
+                tr.appendChild(valueCell);
+                tbody.appendChild(tr);
+                return;
+            }
+            const p = reply.replyData;
+            card.style.display = "block";
+            head.textContent = "Details for FIDN " + p.fidn;
+
+            const rows = [
+                ["FIDN",              p.fidn],
+                ["Type",              Array.isArray(p.householdChildren) ? "Young Household" : "Senior Mentor"],
+                ["Login email",       p.loginEmail],
+                ["Partner 1 name",    p.partnerOneName],
+                ["Partner 1 phone",   p.partnerOneContact],
+                ["Partner 1 email",   p.partnerOneEmail],
+                ["Partner 2 name",    p.partnerTwoName],
+                ["Partner 2 phone",   p.partnerTwoContact],
+                ["Partner 2 email",   p.partnerTwoEmail],
+                ["Home address",      p.familyHomeAddress]
+            ];
+            if (typeof p.yearsWedded === "number" && p.yearsWedded > 0) {
+                rows.push(["Years married", p.yearsWedded]);
+            }
+            if (Array.isArray(p.householdChildren)) {
+                if (p.householdChildren.length === 0) {
+                    rows.push(["Children", "None registered"]);
+                } else {
+                    p.householdChildren.forEach(function (c, i) {
+                        rows.push(["Child " + (i + 1), "Age " + c.childAge + ", " + c.childGender]);
+                    });
+                }
+            }
+            rows.forEach(function (r) {
+                const tr = document.createElement("tr");
+                const labelCell = document.createElement("td");
+                const valueCell = document.createElement("td");
+                // Use textContent (not innerHTML) so any HTML/JS metacharacters
+                // in user-supplied data are rendered as literal text, not parsed.
+                labelCell.textContent = String(r[0]);
+                valueCell.textContent = String(r[1]);
+                tr.appendChild(labelCell);
+                tr.appendChild(valueCell);
+                tbody.appendChild(tr);
+            });
+            card.scrollIntoView({ behavior: "smooth" });
+        } catch (e) {
+            IgfssUi.showStatus("statusMessage", false, "Could not reach the IGFSS server. " + e.message);
+        }
+    }
+
+    document.getElementById("refreshButton").addEventListener("click", loadFidns);
+    loadFidns();
+</script>
+<div class="button-row">
+                <a href="member-dashboard.html" class="btn btn-secondary">Back</a>
+            </div>
+</body>
+</html>

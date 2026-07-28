@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Gathering - IGFSS</title>
+    <link rel="stylesheet" href="css/igfss-yellow-theme.css">
+</head>
+<body>
+
+<header class="app-header">
+    <div class="app-header__inner">
+        <div class="app-header__brand">
+            <h1>Create a community gathering</h1>
+            <p>IGFSS Happy Families</p>
+        </div>
+        <nav class="app-header__session">
+            <span>Signed in as <strong id="myIdentity">FIDN -</strong></span>
+            <a href="member-dashboard.html">Dashboard</a>
+            <a href="#" id="signOutLink">Sign out</a>
+        </nav>
+    </div>
+</header>
+
+<main class="page-container">
+
+    <div class="card">
+        <h2>Create a gathering</h2>
+        <p class="lead">
+            Use this form to schedule a new social gathering, workshop, or community activity.
+            All members will be able to see your gathering on the public list.
+        </p>
+
+        <div class="rule-notice">
+            <strong>Required fields:</strong> category, date, commencement time (24-hour),
+            duration in minutes, venue, and estimated cost (use <strong>0</strong> for free events).
+        </div>
+
+        <div class="form-grid">
+
+            <label>Category
+                <select id="gatheringCategory">
+                    <option value="">Choose...</option>
+                    <option value="SOCIAL_GATHERING">Social Gathering</option>
+                    <option value="WORKSHOP">Workshop</option>
+                    <option value="COMMUNITY_ACTIVITY">Community Activity</option>
+                </select>
+            </label>
+            <label>Venue
+                <input type="text" id="venue" placeholder="e.g. New Farm Park Pavilion" autocomplete="off">
+            </label>
+            <label>Date
+                <input type="date" id="gatheringDate">
+            </label>
+            <label>Time (24-hour)
+                <input type="time" id="gatheringTime">
+            </label>
+            <label>Duration (minutes)
+                <input type="number" id="durationMinutes" min="1" placeholder="e.g. 90">
+            </label>
+            <label>Estimated cost (AUD)
+                <input type="number" id="estimatedCost" min="0" step="0.01" placeholder="0.00 for free">
+            </label>
+
+            <div class="button-row">
+                <button type="button" class="btn" id="createButton">Submit gathering</button>
+                <a href="member-dashboard.html" class="btn btn-secondary">Cancel</a>
+            </div>
+        </div>
+
+        <div id="statusMessage" class="status-message" role="status"></div>
+    </div>
+
+</main>
+
+<footer class="app-footer">
+    IGFSS - Intergenerational Family Support System
+</footer>
+
+<script src="js/igfss-client.js"></script>
+<script>
+    if (IgfssSession.requireSignIn()) {
+        const fidn  = IgfssSession.currentFidn();
+        const email = IgfssSession.currentEmail();
+        document.getElementById("myIdentity").textContent =
+            email ? (email + " (FIDN " + fidn + ")") : ("FIDN " + fidn);
+    }
+    document.getElementById("signOutLink").addEventListener("click", function (e) {
+        e.preventDefault();
+        IgfssSession.signOut();
+        window.location.href = "welcome.html";
+    });
+
+    document.getElementById("createButton").addEventListener("click", async function () {
+
+        const category = IgfssUi.val("gatheringCategory");
+        const venue    = IgfssUi.val("venue");
+        const date     = IgfssUi.val("gatheringDate");
+        const time     = IgfssUi.val("gatheringTime");
+        const duration = IgfssUi.intVal("durationMinutes");
+        const costRaw  = IgfssUi.val("estimatedCost");
+
+        if (!category) {
+            IgfssUi.showStatus("statusMessage", false, "Please choose a gathering category.");
+            return;
+        }
+        if (!venue) {
+            IgfssUi.showStatus("statusMessage", false, "Venue cannot be blank.");
+            return;
+        }
+        if (!date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            IgfssUi.showStatus("statusMessage", false, "Please choose a valid date.");
+            return;
+        }
+        if (!time.match(/^\d{2}:\d{2}$/)) {
+            IgfssUi.showStatus("statusMessage", false, "Please choose a valid time.");
+            return;
+        }
+        if (Number.isNaN(duration) || duration <= 0) {
+            IgfssUi.showStatus("statusMessage", false, "Duration must be a positive whole number of minutes.");
+            return;
+        }
+        const cost = parseFloat(costRaw);
+        if (Number.isNaN(cost) || cost < 0) {
+            IgfssUi.showStatus("statusMessage", false, "Estimated cost must be 0 or a positive number.");
+            return;
+        }
+
+        const gathering = {
+            organiserFidn:     IgfssSession.currentFidn(),
+            gatheringCategory: category,
+            gatheringDate:     date,
+            gatheringTime:     time,
+            durationMinutes:   duration,
+            venue:             venue,
+            estimatedCost:     cost
+        };
+
+        try {
+            const reply = await IgfssClient.createGathering(gathering);
+            IgfssUi.showStatus("statusMessage", reply.accepted, reply.replyMessage);
+            if (reply.accepted) {
+                document.querySelectorAll(".form-grid input, .form-grid select")
+                        .forEach(i => i.value = "");
+            }
+        } catch (e) {
+            IgfssUi.showStatus("statusMessage", false, "Could not reach the IGFSS server. " + e.message);
+        }
+    });
+</script>
+
+</body>
+</html>

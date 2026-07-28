@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register as Senior Mentor - IGFSS</title>
+    <link rel="stylesheet" href="css/igfss-yellow-theme.css">
+</head>
+<body>
+
+<header class="app-header">
+    <div class="app-header__inner">
+        <div class="app-header__brand">
+            <h1>Register as Senior Mentor</h1>
+            <p>IGFSS Happy Families</p>
+        </div>
+        <nav class="app-header__session">
+            <a href="welcome.html">Back to welcome</a>
+        </nav>
+    </div>
+</header>
+
+<main class="page-container">
+
+    <div class="card">
+        <h2>Senior Mentor registration</h2>
+        <p class="lead">
+            Senior Mentors are experienced couples who share their relationship wisdom with
+            younger families in the community. Please complete every field below.
+        </p>
+
+        <div class="rule-notice">
+            <strong>Eligibility:</strong> Senior Mentor couples must have been married for at
+            least <strong>20 years</strong>. Your sign-in password must be exactly
+            <strong>10 characters</strong> long and contain both letters and numbers.
+        </div>
+
+        <div class="form-grid">
+
+            <h3 style="grid-column: 1 / -1;">Partner 1</h3>
+            <label>Full name
+                <input type="text" id="p1Name" placeholder="e.g. Priya Sharma" autocomplete="off">
+            </label>
+            <label>Phone
+                <input type="tel" id="p1Phone" placeholder="e.g. 0411 222 333" autocomplete="off">
+            </label>
+            <label class="full-width">Email
+                <input type="email" id="p1Email" placeholder="e.g. priya.sharma@example.com" autocomplete="off">
+            </label>
+
+            <h3 style="grid-column: 1 / -1;">Partner 2</h3>
+            <label>Full name
+                <input type="text" id="p2Name" placeholder="e.g. Rajesh Sharma" autocomplete="off">
+            </label>
+            <label>Phone
+                <input type="tel" id="p2Phone" placeholder="e.g. 0412 333 444" autocomplete="off">
+            </label>
+            <label class="full-width">Email
+                <input type="email" id="p2Email" placeholder="e.g. rajesh.sharma@example.com" autocomplete="off">
+            </label>
+
+            <h3 style="grid-column: 1 / -1;">Household</h3>
+            <label class="full-width">Home address
+                <input type="text" id="address" placeholder="e.g. 24 Acacia Avenue, Glen Waverley VIC 3150" autocomplete="off">
+            </label>
+            <label>Years married
+                <input type="number" id="yearsWedded" min="20" placeholder="must be 20 or more">
+            </label>
+
+            <h3 style="grid-column: 1 / -1;">Primary Email ID for Sign-in</h3>
+            <label>Login email (becomes your username)
+                <input type="email" id="loginEmail" placeholder="email used to sign in" autocomplete="off">
+            </label>
+            <label>Password (10 characters, letters and numbers)
+                <input type="password" id="passwordPlain" maxlength="10" placeholder="exactly 10 characters" autocomplete="new-password">
+            </label>
+
+            <div class="button-row">
+                <button type="button" class="btn" id="enrolButton">Submit registration</button>
+                <a href="welcome.html" class="btn btn-secondary">Cancel</a>
+            </div>
+        </div>
+
+        <div id="statusMessage" class="status-message" role="status"></div>
+    </div>
+
+</main>
+
+<footer class="app-footer">
+    IGFSS - Intergenerational Family Support System
+</footer>
+
+<script src="js/igfss-client.js"></script>
+<script>
+    document.getElementById("enrolButton").addEventListener("click", async function () {
+
+        const yearsWedded = IgfssUi.intVal("yearsWedded");
+        if (Number.isNaN(yearsWedded)) {
+            IgfssUi.showStatus("statusMessage", false, "Years married must be a whole number.");
+            return;
+        }
+
+        const credential = {
+            loginEmail:    IgfssUi.val("loginEmail"),
+            passwordPlain: document.getElementById("passwordPlain").value
+        };
+        const credViolation = IgfssValidator.describeEmailViolation(credential.loginEmail)
+                           || IgfssValidator.describePasswordViolation(credential.passwordPlain);
+        if (credViolation) {
+            IgfssUi.showStatus("statusMessage", false, credViolation);
+            return;
+        }
+
+        const mentor = {
+            partnerOneName:    IgfssUi.val("p1Name"),
+            partnerTwoName:    IgfssUi.val("p2Name"),
+            partnerOneContact: IgfssUi.val("p1Phone"),
+            partnerTwoContact: IgfssUi.val("p2Phone"),
+            partnerOneEmail:   IgfssUi.val("p1Email"),
+            partnerTwoEmail:   IgfssUi.val("p2Email"),
+            familyHomeAddress: IgfssUi.val("address"),
+            loginEmail:        credential.loginEmail,
+            yearsWedded:       yearsWedded
+        };
+
+        try {
+            const reply = await IgfssClient.enrolSeniorMentor(mentor, credential);
+            IgfssUi.showStatus("statusMessage", reply.accepted, reply.replyMessage);
+            if (reply.accepted) {
+                document.querySelectorAll(".form-grid input").forEach(i => i.value = "");
+            }
+        } catch (e) {
+            IgfssUi.showStatus("statusMessage", false, "Could not reach the IGFSS server. " + e.message);
+        }
+    });
+</script>
+
+</body>
+</html>

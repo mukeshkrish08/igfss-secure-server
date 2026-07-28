@@ -1,0 +1,824 @@
+/* IGFSS yellow theme.
+   Warm gold accent + paper-white surfaces, 8-pt spacing scale,
+   focus rings on every interactive element. */
+/* Design Tokens */
+
+:root {
+    /* Palette - warm neutrals + one gold accent */
+    --color-paper:        #FFFFFF;   /* card surfaces */
+    --color-canvas:       #FBF7EC;   /* page background, very subtle warm */
+    --color-canvas-edge:  #F2EBD3;   /* hairlines on the canvas */
+
+    --color-gold:         #E5B53A;   /* primary action accent */
+    --color-gold-soft:    #FFF6D6;   /* subtle accent tint (banners, focus halos) */
+    --color-gold-deep:    #B8870E;   /* hover / pressed states */
+
+    --color-ink:          #1F1B12;   /* headings + key body text */
+    --color-text:         #2E2A22;   /* body text */
+    --color-muted:        #6B6353;   /* secondary text, labels, captions */
+    --color-line:         #E2DBC4;   /* default borders */
+
+    --color-success:      #1A6217;   /* WCAG AA on white */
+    --color-success-bg:   #EAF5E5;
+    --color-success-bdr:  #B5D8A4;
+
+    --color-danger:       #8C1F00;   /* WCAG AA on white */
+    --color-danger-bg:    #FBE6DF;
+    --color-danger-bdr:   #E0A38F;
+
+    /* Spacing scale - 8 pt grid */
+    --space-1:  4px;
+    --space-2:  8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 24px;
+    --space-6: 32px;
+    --space-7: 48px;
+    --space-8: 64px;
+
+    /* Typography scale - 1.250 ratio (major third) */
+    --type-xs:    12px;
+    --type-sm:    14px;
+    --type-base:  16px;
+    --type-lg:    20px;
+    --type-xl:    25px;
+    --type-2xl:   31px;
+
+    --line-tight:   1.25;
+    --line-normal:  1.55;
+
+    /* Borders + shape */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+
+    /* Focus ring (3 px gold halo, visible on every element) */
+    --focus-ring: 0 0 0 3px rgba(229, 181, 58, 0.45);
+
+    /* Shadows - very subtle, paper on paper */
+    --shadow-sm: 0 1px 2px rgba(31, 27, 18, 0.04);
+    --shadow-md: 0 2px 8px rgba(31, 27, 18, 0.06);
+
+    /* Layout */
+    --content-max: 1200px;
+
+    /* Motion */
+    --transition: 150ms ease;
+}
+
+
+/* Reset + base */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Inter", "Segoe UI", "Helvetica Neue", system-ui, -apple-system, sans-serif;
+    font-size: var(--type-base);
+    line-height: var(--line-normal);
+    color: var(--color-text);
+    background-color: var(--color-canvas);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+
+/* Header - the only large yellow surface in the design */
+
+.app-header {
+    background-color: var(--color-gold);
+    border-bottom: 1px solid var(--color-gold-deep);
+    padding: var(--space-5) var(--space-6);
+}
+
+.app-header__inner {
+    max-width: var(--content-max);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}
+
+.app-header__brand h1 {
+    margin: 0;
+    font-size: var(--type-lg);
+    line-height: var(--line-tight);
+    color: var(--color-ink);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.app-header__brand p {
+    margin: 2px 0 0 0;
+    font-size: var(--type-xs);
+    color: rgba(31, 27, 18, 0.72);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.app-header__session {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--type-sm);
+    color: rgba(31, 27, 18, 0.78);
+}
+
+.app-header__session a {
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    transition: color var(--transition);
+}
+
+.app-header__session a:hover {
+    color: var(--color-gold-deep);
+}
+
+.app-header__session a:focus-visible {
+    outline: none;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--focus-ring);
+}
+
+
+/* Layout containers */
+
+.page-container {
+    max-width: var(--content-max);
+    margin: 0 auto;
+    padding: var(--space-7) var(--space-5);
+}
+
+.card {
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    margin-bottom: var(--space-5);
+    box-shadow: var(--shadow-sm);
+}
+
+.card + .card {
+    margin-top: 0;
+}
+
+
+/* Typography in content */
+
+.card h2 {
+    margin: 0 0 var(--space-2) 0;
+    font-size: var(--type-xl);
+    line-height: var(--line-tight);
+    color: var(--color-ink);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+}
+
+.card h3 {
+    margin: var(--space-6) 0 var(--space-3) 0;
+    font-size: var(--type-base);
+    color: var(--color-ink);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--color-line);
+}
+
+.card h3:first-of-type {
+    margin-top: var(--space-5);
+}
+
+.lead {
+    margin: 0 0 var(--space-5) 0;
+    font-size: var(--type-base);
+    color: var(--color-muted);
+    line-height: var(--line-normal);
+    max-width: 60ch;
+}
+
+
+/* Notice / banner (subtle gold tint, never a wall of yellow) */
+
+.rule-notice {
+    background-color: var(--color-gold-soft);
+    border: 1px solid #F2DC8A;
+    border-left: 3px solid var(--color-gold);
+    padding: var(--space-3) var(--space-4);
+    margin: 0 0 var(--space-5) 0;
+    font-size: var(--type-sm);
+    color: #5C4A0E;
+    border-radius: var(--radius-md);
+    line-height: 1.5;
+}
+
+.rule-notice strong {
+    color: var(--color-ink);
+    font-weight: 600;
+}
+
+
+/* Forms */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4) var(--space-5);
+}
+
+.form-grid.single-column {
+    grid-template-columns: 1fr;
+    max-width: 420px;
+}
+
+.form-grid label {
+    display: flex;
+    flex-direction: column;
+    font-size: var(--type-sm);
+    font-weight: 500;
+    color: var(--color-muted);
+}
+
+.form-grid label.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-grid input[type="text"],
+.form-grid input[type="email"],
+.form-grid input[type="tel"],
+.form-grid input[type="number"],
+.form-grid input[type="password"],
+.form-grid input[type="date"],
+.form-grid input[type="time"],
+.form-grid select,
+.form-grid textarea {
+    margin-top: var(--space-2);
+    height: 44px;                       /* WCAG touch target minimum */
+    padding: 0 var(--space-3);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-size: var(--type-base);
+    font-family: inherit;
+    transition: border-color var(--transition), box-shadow var(--transition);
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.form-grid select {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='none' stroke='%236B6353' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M1 1l5 5 5-5'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    cursor: pointer;
+}
+
+.form-grid textarea {
+    height: auto;
+    min-height: 88px;
+    padding-top: var(--space-3);
+    padding-bottom: var(--space-3);
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.form-grid input::placeholder,
+.form-grid textarea::placeholder {
+    color: #A39A82;
+    font-size: var(--type-sm);
+}
+
+/* Focus ring - visible, not removed */
+.form-grid input:focus-visible,
+.form-grid select:focus-visible,
+.form-grid textarea:focus-visible {
+    outline: none;
+    border-color: var(--color-gold);
+    box-shadow: var(--focus-ring);
+}
+
+.form-grid input:hover,
+.form-grid select:hover {
+    border-color: #C8C0A6;
+}
+
+
+/* Children panel (Young Household form) */
+
+.children-panel {
+    grid-column: 1 / -1;
+    background-color: var(--color-canvas);
+    border: 1px dashed var(--color-canvas-edge);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+}
+
+.children-panel h4 {
+    margin: 0 0 var(--space-3) 0;
+    font-size: var(--type-xs);
+    color: var(--color-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.child-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 1fr;
+    gap: var(--space-3);
+    align-items: end;
+    margin-bottom: var(--space-2);
+}
+
+.child-row .child-num {
+    font-size: var(--type-sm);
+    color: var(--color-muted);
+    font-weight: 500;
+    padding-bottom: var(--space-3);
+}
+
+
+/* Buttons */
+
+.button-row {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: var(--space-3);
+    margin-top: var(--space-5);
+    flex-wrap: wrap;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 var(--space-5);
+    background-color: var(--color-gold);
+    color: var(--color-ink);
+    font-size: var(--type-sm);
+    font-weight: 600;
+    border: 1px solid var(--color-gold-deep);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 0.01em;
+    transition: background-color var(--transition), border-color var(--transition), transform 80ms ease;
+}
+
+.btn:hover {
+    background-color: var(--color-gold-deep);
+    color: var(--color-paper);
+    border-color: var(--color-gold-deep);
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+.btn:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+}
+
+.btn-secondary {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    border-color: var(--color-line);
+}
+
+.btn-secondary:hover {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    border-color: #C8C0A6;
+}
+
+
+/* Status messages (validation results from the server) */
+
+.status-message {
+    display: none;
+    margin-top: var(--space-5);
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--type-sm);
+    line-height: 1.5;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+}
+
+.status-message.visible {
+    display: block;
+}
+
+.status-accepted {
+    background-color: var(--color-success-bg);
+    border-color: var(--color-success-bdr);
+    color: var(--color-success);
+}
+
+.status-rejected {
+    background-color: var(--color-danger-bg);
+    border-color: var(--color-danger-bdr);
+    color: var(--color-danger);
+}
+
+
+/* Welcome page action grid */
+
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+    margin-top: var(--space-5);
+}
+
+.action-tile {
+    display: block;
+    padding: var(--space-5);
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    color: var(--color-ink);
+    text-decoration: none;
+    transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+
+.action-tile:hover {
+    border-color: var(--color-gold);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.action-tile:focus-visible {
+    outline: none;
+    border-color: var(--color-gold);
+    box-shadow: var(--focus-ring);
+}
+
+.action-tile h3 {
+    margin: 0 0 var(--space-2) 0;
+    font-size: var(--type-base);
+    color: var(--color-ink);
+    border: none;
+    padding: 0;
+    text-transform: none;
+    letter-spacing: -0.005em;
+    font-weight: 600;
+}
+
+.action-tile p {
+    margin: 0;
+    font-size: var(--type-sm);
+    color: var(--color-muted);
+    line-height: 1.5;
+}
+
+/* When odd number of tiles, last one spans full width instead of sitting alone */
+.action-grid .action-tile:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+}
+
+
+/* FIDN directory grid */
+
+.fidn-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+}
+
+.fidn-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 56px;
+    padding: var(--space-3);
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    text-align: center;
+    cursor: pointer;
+    color: var(--color-ink);
+    font-weight: 600;
+    font-size: var(--type-sm);
+    text-decoration: none;
+    transition: border-color var(--transition), background-color var(--transition);
+}
+
+.fidn-tile:hover {
+    border-color: var(--color-gold);
+    background-color: var(--color-gold-soft);
+}
+
+.fidn-tile:focus-visible {
+    outline: none;
+    border-color: var(--color-gold);
+    box-shadow: var(--focus-ring);
+}
+
+
+/* Gathering tiles (event list) */
+
+.gathering-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+}
+
+.gathering-tile {
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    padding: var(--space-4) var(--space-5);
+    border-left: 3px solid var(--color-gold);
+}
+
+.gathering-tile .gathering-id {
+    font-size: var(--type-xs);
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+}
+
+.gathering-tile h4 {
+    margin: var(--space-1) 0 var(--space-3) 0;
+    font-size: var(--type-base);
+    font-weight: 600;
+    color: var(--color-ink);
+    line-height: var(--line-tight);
+}
+
+.gathering-tile .meta {
+    font-size: var(--type-sm);
+    color: var(--color-text);
+    line-height: 1.7;
+}
+
+.gathering-tile .meta strong {
+    color: var(--color-muted);
+    font-weight: 500;
+    margin-right: var(--space-1);
+}
+
+
+/* Detail table (single FIDN view) */
+
+.detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: var(--space-3);
+    font-size: var(--type-sm);
+}
+
+.detail-table tr {
+    border-bottom: 1px solid var(--color-line);
+}
+
+.detail-table tr:last-child {
+    border-bottom: none;
+}
+
+.detail-table td {
+    padding: var(--space-3) var(--space-4);
+    vertical-align: top;
+}
+
+.detail-table td:first-child {
+    width: 38%;
+    color: var(--color-muted);
+    font-weight: 500;
+}
+
+.detail-table td:last-child {
+    color: var(--color-ink);
+    font-weight: 500;
+}
+
+
+/* Footer */
+
+.app-footer {
+    flex-shrink: 0;
+    margin-top: var(--space-7);
+    padding: var(--space-5) var(--space-5);
+    background-color: var(--color-canvas);
+    border-top: 1px solid var(--color-canvas-edge);
+    text-align: center;
+    font-size: var(--type-xs);
+    color: var(--color-muted);
+    letter-spacing: 0.02em;
+}
+
+
+/* Responsive (single column on phones) */
+
+@media (max-width: 720px) {
+
+    .form-grid,
+    .action-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .child-row {
+        grid-template-columns: 60px 1fr 1fr;
+        gap: var(--space-2);
+    }
+
+    .app-header {
+        padding: var(--space-4) var(--space-4);
+    }
+
+    .app-header__inner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .page-container {
+        padding: var(--space-5) var(--space-4);
+    }
+
+    .card {
+        padding: var(--space-5) var(--space-4);
+    }
+
+    .button-row {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
+
+
+/* Reduced motion (respect user preference) */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+
+/* 
+   18. Icon system (Heroicons inline SVG)
+*/
+
+.icon {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    vertical-align: middle;
+    color: var(--color-gold-deep);
+}
+
+.icon-sm { width: 20px; height: 20px; }
+.icon-md { width: 32px; height: 32px; }
+.icon-lg { width: 40px; height: 40px; }
+.icon-xl { width: 48px; height: 48px; }
+
+
+/* Tile icons (welcome page + dashboard) */
+
+.action-tile .tile-icon {
+    display: block;
+    width: 32px;
+    height: 32px;
+    color: var(--color-gold-deep);
+    margin-bottom: var(--space-3);
+}
+
+.action-tile:hover .tile-icon {
+    color: var(--color-gold-deep);
+}
+
+
+/* Hero section (welcome page only) */
+
+.hero {
+    padding: var(--space-7) 0 var(--space-6) 0;
+    text-align: left;
+    max-width: 640px;
+}
+
+.hero .hero-icon {
+    color: var(--color-gold-deep);
+    margin-bottom: var(--space-4);
+}
+
+.hero h1 {
+    margin: 0 0 var(--space-3) 0;
+    font-size: var(--type-2xl);
+    line-height: var(--line-tight);
+    color: var(--color-ink);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.hero p {
+    margin: 0;
+    font-size: var(--type-base);
+    color: var(--color-muted);
+    line-height: var(--line-normal);
+    max-width: 60ch;
+}
+
+
+/* Avatar circles (About page) */
+
+.avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: var(--color-gold-soft);
+    border: 2px solid var(--color-gold);
+    color: var(--color-gold-deep);
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    user-select: none;
+}
+
+
+/* Login page lock icon */
+
+.login-icon-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--space-4);
+}
+
+.login-icon-wrap .icon {
+    color: var(--color-gold-deep);
+}
+
+
+/* Category icon for gathering tiles */
+
+.gathering-tile .gathering-id {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.gathering-tile .gathering-id .icon {
+    width: 18px;
+    height: 18px;
+    color: var(--color-gold-deep);
+}
+
+
+/* Mobile adjustments for hero */
+
+@media (max-width: 720px) {
+    .hero { padding: var(--space-5) 0 var(--space-4) 0; }
+    .hero h1 { font-size: var(--type-xl); }
+}
+
+/* Empty state for the directory + gatherings list */
+.empty-state {
+    color: var(--color-muted);
+    font-size: var(--type-base);
+    padding: var(--space-5);
+    text-align: center;
+    background-color: var(--color-paper);
+    border: 1px dashed var(--color-line);
+    border-radius: var(--radius-lg);
+}
