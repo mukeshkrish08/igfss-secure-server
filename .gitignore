@@ -1,0 +1,18 @@
+# Secrets / local config
+server/igfss.properties
+
+# Generated keystore
+server/*.jks
+server/*.p12
+server/*.keystore
+security/
+
+# Maven
+server/target/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+*.iml
+.vscode/
